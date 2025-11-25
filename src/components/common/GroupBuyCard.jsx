@@ -9,10 +9,6 @@ export default function GroupBuyCard({
   deadline,
   progress,
   badge,
-  onDetailClick,
-  onJoinClick,
-  primaryButtonText = '참여하기',
-  singleButton = false
 }) {
   return (
     <article className="groupbuy-card">
@@ -51,24 +47,6 @@ export default function GroupBuyCard({
         
         {price && <p className="card-price">{price}</p>}
         {deadline && <p className="card-deadline">{deadline}</p>}
-        
-        {/* 버튼들 */}
-        <div className="card-buttons">
-          {singleButton ? (
-            <Button variant="outline" onClick={onDetailClick}>
-              상세보기
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" onClick={onDetailClick}>
-                상세보기
-              </Button>
-              <Button variant="primary" onClick={onJoinClick}>
-                {primaryButtonText}
-              </Button>
-            </>
-          )}
-        </div>
       </div>
     </article>
   );

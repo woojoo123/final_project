@@ -16,6 +16,12 @@ export default function SignUp() {
     gender: '',
     agreeMarketing: false
   });
+  
+  // 아이디 중복 확인 상태
+  const [userIdChecked, setUserIdChecked] = useState(false);
+  const [userIdAvailable, setUserIdAvailable] = useState(null);
+  const [userIdMessage, setUserIdMessage] = useState('');
+  const [isCheckingUserId, setIsCheckingUserId] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,13 +29,97 @@ export default function SignUp() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // 아이디 변경 시 중복 확인 상태 초기화
+    if (name === 'userId') {
+      setUserIdChecked(false);
+      setUserIdAvailable(null);
+      setUserIdMessage('');
+    }
   };
 
-  const handleSubmit = (e) => {
+  // 아이디 중복 확인 함수
+  const handleCheckUserId = async () => {
+    if (!formData.userId.trim()) {
+      alert('아이디를 입력해주세요.');
+      return;
+    }
+
+    setIsCheckingUserId(true);
+    try {
+      // TODO: 실제 API URL로 변경 필요
+      const url = 'http://localhost:8080'; // 환경변수나 설정 파일로 관리
+      const response = await fetch(`${url}/signup/checkUserId?userId=${formData.userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('아이디 중복 확인에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setUserIdChecked(true);
+      setUserIdAvailable(data.available);
+      setUserIdMessage(data.message || (data.available ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.'));
+    } catch (error) {
+      console.error('아이디 중복 확인 실패:', error);
+      alert('아이디 중복 확인에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsCheckingUserId(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('회원가입:', formData);
-    // 회원가입 로직
-    navigate('/login');
+    
+    // 아이디 중복 확인 검증
+    if (!userIdChecked || !userIdAvailable) {
+      alert('아이디 중복 확인을 해주세요.');
+      return;
+    }
+
+    // 비밀번호 확인 검증
+    if (formData.password !== formData.passwordConfirm) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    try {
+      // TODO: 실제 API URL로 변경 필요
+      const url = 'http://localhost:8080'; // 환경변수나 설정 파일로 관리
+      const response = await fetch(`${url}/signup/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: formData.userId,
+          nickname: formData.nickname,
+          password: formData.password,
+          phone: formData.phone,
+          email: formData.email,
+          address: formData.address,
+          detailAddress: formData.detailAddress || null,
+          gender: formData.gender || null,
+          agreeMarketing: formData.agreeMarketing
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('회원가입에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      console.log('회원가입 성공:', data);
+      alert('회원가입이 완료되었습니다.');
+      navigate('/login');
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   return (
@@ -39,10 +129,10 @@ export default function SignUp() {
         <p className="signup-subtitle">필수 정보를 입력하여 공동구매 서비스를 이용해 보세요.</p>
 
         <form onSubmit={handleSubmit} className="signup-form">
-          {/* 아이디 & 닉네임 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="userId" className="form-label">아이디</label>
+          {/* 아이디 */}
+          <div className="form-group">
+            <label htmlFor="userId" className="form-label">아이디</label>
+            <div className="userId-input-wrapper">
               <input
                 type="text"
                 id="userId"
@@ -53,80 +143,95 @@ export default function SignUp() {
                 onChange={handleChange}
                 required
               />
+              <button
+                type="button"
+                className="check-button"
+                onClick={handleCheckUserId}
+                disabled={isCheckingUserId || !formData.userId.trim()}
+              >
+                {isCheckingUserId ? '확인 중...' : '중복 확인'}
+              </button>
             </div>
-            <div className="form-group">
-              <label htmlFor="nickname" className="form-label">닉네임</label>
-              <input
-                type="text"
-                id="nickname"
-                name="nickname"
-                className="form-input"
-                placeholder="닉네임"
-                value={formData.nickname}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            {userIdChecked && (
+              <span className={`userId-message ${userIdAvailable ? 'success' : 'error'}`}>
+                {userIdMessage}
+              </span>
+            )}
           </div>
 
-          {/* 비밀번호 & 비밀번호 확인 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">비밀번호</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="form-input"
-                placeholder="비밀번호"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="passwordConfirm" className="form-label">비밀번호 확인</label>
-              <input
-                type="password"
-                id="passwordConfirm"
-                name="passwordConfirm"
-                className="form-input"
-                placeholder="비밀번호 확인"
-                value={formData.passwordConfirm}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          {/* 닉네임 */}
+          <div className="form-group">
+            <label htmlFor="nickname" className="form-label">닉네임</label>
+            <input
+              type="text"
+              id="nickname"
+              name="nickname"
+              className="form-input"
+              placeholder="닉네임"
+              value={formData.nickname}
+              onChange={handleChange}
+              required
+            />
           </div>
 
-          {/* 연락처 & 이메일 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="phone" className="form-label">연락처</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                className="form-input"
-                placeholder="010-0000-0000"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">이메일</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="form-input"
-                placeholder="example@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          {/* 비밀번호 */}
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">비밀번호</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              className="form-input"
+              placeholder="비밀번호"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* 비밀번호 확인 */}
+          <div className="form-group">
+            <label htmlFor="passwordConfirm" className="form-label">비밀번호 확인</label>
+            <input
+              type="password"
+              id="passwordConfirm"
+              name="passwordConfirm"
+              className="form-input"
+              placeholder="비밀번호 확인"
+              value={formData.passwordConfirm}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* 연락처 */}
+          <div className="form-group">
+            <label htmlFor="phone" className="form-label">연락처</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              className="form-input"
+              placeholder="010-0000-0000"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* 이메일 */}
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">이메일</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="form-input"
+              placeholder="example@email.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           {/* 주소 */}
@@ -136,7 +241,7 @@ export default function SignUp() {
               type="text"
               id="address"
               name="address"
-              className="form-input"
+              className="form-input full-width"
               placeholder="기본 주소"
               value={formData.address}
               onChange={handleChange}
@@ -144,54 +249,54 @@ export default function SignUp() {
             />
           </div>
 
-          {/* 상세주소 & 성별 */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="detailAddress" className="form-label">상세주소</label>
-              <input
-                type="text"
-                id="detailAddress"
-                name="detailAddress"
-                className="form-input"
-                placeholder="상세주소"
-                value={formData.detailAddress}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">성별</label>
-              <div className="gender-options">
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="남성"
-                    checked={formData.gender === '남성'}
-                    onChange={handleChange}
-                  />
-                  <span>남성</span>
-                </label>
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="여성"
-                    checked={formData.gender === '여성'}
-                    onChange={handleChange}
-                  />
-                  <span>여성</span>
-                </label>
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="선택 안 함"
-                    checked={formData.gender === '선택 안 함'}
-                    onChange={handleChange}
-                  />
-                  <span>선택 안 함</span>
-                </label>
-              </div>
+          {/* 상세주소 */}
+          <div className="form-group">
+            <label htmlFor="detailAddress" className="form-label">상세주소</label>
+            <input
+              type="text"
+              id="detailAddress"
+              name="detailAddress"
+              className="form-input full-width"
+              placeholder="상세주소"
+              value={formData.detailAddress}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* 성별 */}
+          <div className="form-group">
+            <label className="form-label">성별</label>
+            <div className="gender-options">
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="남성"
+                  checked={formData.gender === '남성'}
+                  onChange={handleChange}
+                />
+                <span>남성</span>
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="여성"
+                  checked={formData.gender === '여성'}
+                  onChange={handleChange}
+                />
+                <span>여성</span>
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="선택 안 함"
+                  checked={formData.gender === '선택 안 함'}
+                  onChange={handleChange}
+                />
+                <span>선택 안 함</span>
+              </label>
             </div>
           </div>
 
