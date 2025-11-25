@@ -38,14 +38,6 @@ export default function MainPage() {
     { id: 4, title: '단백질 보충제', participants: '참여 30명 / 목표 10명', price: '예상 공동 구매가: 88,000원', image: '/mainPage/proteinSupplement.png'}
   ];
 
-  const handleDetailClick = (id) => {
-    console.log('상세보기:', id);
-  };
-
-  const handleJoinClick = (id) => {
-    console.log('참여하기:', id);
-  };
-
   return (
     <div className="mainpage-container">
       {/* Header는 App.jsx에서 공통으로 렌더링 */}
@@ -74,9 +66,6 @@ export default function MainPage() {
                 title={item.title}
                 participants={item.participants}
                 deadline={item.deadline}
-                onDetailClick={() => handleDetailClick(item.id)}
-                onJoinClick={() => handleJoinClick(item.id)}
-                primaryButtonText="참여하기"
               />
             ))}
           </div>
