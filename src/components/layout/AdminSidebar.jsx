@@ -1,135 +1,206 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import {
+  Home, FileText, ShoppingCart, Package, RefreshCw,
+  Users, Bell, Megaphone, BarChart3, Menu,
+  ChevronDown, ChevronRight,
+  ChevronsLeft, ChevronsRight
+} from 'lucide-react';
 import './AdminSidebar.css';
 
-export default function AdminSidebar() {
-  const location = useLocation();
-  const [openMenus, setOpenMenus] = useState({});
-  
-  // 단일 메뉴 (드롭다운 없음)
-  const singleMenuItems = [
-    { path: '/admin', label: '홈' },
-    { path: '/admin/notifications', label: '알림발송' },
-    { path: '/admin/cs/notice/write', label: '공지사항 작성' },
-  ];
+const Sidebar = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openMenus, setOpenMenus] = useState({
+    groupbuy: false, 
+    member: false,
+    stats: false
+  });
 
-  // 드롭다운 메뉴
-  const dropdownMenuItems = [
-    {
-      key: 'proposals',
-      label: '제안관리',
-      path: '/admin/proposals',
-      subItems: [] // 추후 하위 메뉴 추가 가능
-    },
-    {
-      key: 'groupbuy',
-      label: '공구 관리',
-      path: '/admin/groupbuy',
-      subItems: []
-    },
-    {
-      key: 'exchange',
-      label: '교환 및 반품 관리',
-      path: '/admin/exchange',
-      subItems: []
-    },
-    {
-      key: 'members',
-      label: '회원 관리',
-      path: '/admin/members',
-      subItems: []
-    },
-    {
-      key: 'delivery',
-      label: '납품 관리',
-      path: '/admin/delivery',
-      subItems: []
-    },
-    {
-      key: 'statistics',
-      label: '통계',
-      path: '/admin/statistics',
-      subItems: []
-    },
-  ];
-
-  const toggleMenu = (key) => {
+  const toggleSubmenu = (menuId) => {
     setOpenMenus(prev => ({
       ...prev,
-      [key]: !prev[key]
+      [menuId]: !prev[menuId]
     }));
   };
 
-  const isMenuActive = (item) => {
-    return location.pathname.startsWith(item.path);
-  };
-
   return (
-    <aside className="sidebar">
-      {/* 사이드바 헤더 */}
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+
+      {/* 헤더 */}
       <div className="sidebar-header">
-        <img src="/logo-JOINus.png" alt="JOINus 로고" className="sidebar-logo" />
+        <div className="logo-container">
+          {!isCollapsed && (
+            <div className="logo">
+              <span className="logo-icon" ><img src="/logo.svg" width="60px"/></span>
+              <span className="logo-text">JOINus</span>
+            </div>
+          )}
+          {isCollapsed && (
+            <div className="logo-icon-only"> </div>
+          )}
+        </div>
+        <button 
+          className="toggle-btn"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          {isCollapsed ? 
+            <ChevronsRight size={20} /> : 
+            <ChevronsLeft size={20} />
+          }
+        </button>
       </div>
 
-      {/* 메인 메뉴 */}
+      {/* 메뉴 리스트 */}
       <nav className="sidebar-nav">
-        {/* 단일 메뉴 */}
-        {singleMenuItems.map((item) => (
-          <div key={item.path} className="menu-item-wrapper">
-            <Link
-              to={item.path}
-              className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
-            >
-              <span className="sidebar-label">{item.label}</span>
-            </Link>
-            <div className="menu-divider"></div>
-          </div>
-        ))}
-
-        {/* 드롭다운 메뉴 */}
-        {dropdownMenuItems.map((item) => {
-          const isOpen = openMenus[item.key];
-          const hasSubItems = item.subItems && item.subItems.length > 0;
-          
-          return (
-            <div key={item.key} className="menu-item-wrapper">
-              {hasSubItems ? (
-                <>
-                  <button
-                    className={`sidebar-item sidebar-dropdown ${isMenuActive(item) ? 'active' : ''}`}
-                    onClick={() => toggleMenu(item.key)}
-                  >
-                    <span className="sidebar-label">{item.label}</span>
-                    <span className="dropdown-arrow">{isOpen ? '▲' : '▼'}</span>
-                  </button>
-                  {isOpen && (
-                    <div className="dropdown-submenu">
-                      {item.subItems.map((subItem) => (
-                        <Link
-                          key={subItem.path}
-                          to={subItem.path}
-                          className={`sidebar-item sidebar-subitem ${location.pathname === subItem.path ? 'active' : ''}`}
-                        >
-                          <span className="sidebar-label">{subItem.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Link
-                  to={item.path}
-                  className={`sidebar-item ${isMenuActive(item) ? 'active' : ''}`}
-                >
-                  <span className="sidebar-label">{item.label}</span>
-                </Link>
-              )}
-              <div className="menu-divider"></div>
+        
+        {/* 홈 */}
+        <div className="menu-item-container">
+          <div className="menu-item active">
+            <div className="menu-item-content">
+              <Home size={20} className="menu-icon" />
+              {!isCollapsed && <span className="menu-label">홈</span>}
             </div>
-          );
-        })}
-      </nav>
-    </aside>
-  );
-}
+          </div>
+        </div>
 
+        {/* 제안관리 */}
+        <div className="menu-item-container">
+          <div className="menu-item">
+            <div className="menu-item-content">
+              <FileText size={20} className="menu-icon" />
+              {!isCollapsed && <span className="menu-label">제안관리</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* 공구 관리 (서브메뉴) */}
+        <div className="menu-item-container">
+          <div 
+            className="menu-item"
+            onClick={() => toggleSubmenu('groupbuy')}
+          >
+            <div className="menu-item-content">
+              <ShoppingCart size={20} className="menu-icon" />
+              {!isCollapsed && (
+                <>
+                  <span className="menu-label">공구 관리</span>
+                  <span className="menu-arrow">
+                    {openMenus.groupbuy ? 
+                      <ChevronDown size={16} /> : 
+                      <ChevronRight size={16} />
+                    }
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* 서브메뉴 */}
+          {openMenus.groupbuy && !isCollapsed && (
+            <div className="submenu">
+              <div className="submenu-item">
+                <span className="submenu-label">공구 목록 조회</span>
+              </div>
+              <div className="submenu-item">
+                <span className="submenu-label">공구 상품 주문/배송 관리</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 교환 및 반품 관리 */}
+        <div className="menu-item-container">
+          <div className="menu-item" >
+            <div className="menu-item-content">
+              <RefreshCw size={20} className="menu-icon" />
+              {!isCollapsed && <span className="menu-label">교환 및 반품 관리</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* 회원 관리 (서브메뉴)  */}
+        <div className="menu-item-container">
+          <div className="menu-item"
+          onClick={() => toggleSubmenu('member')}
+          >
+            <div className="menu-item-content">
+              <Users size={20} className="menu-icon" />
+              {!isCollapsed && (
+                <>
+                  <span className="menu-label">회원 관리</span>
+                  <span className="menu-arrow">
+                    {openMenus.member ? 
+                      <ChevronDown size={16} /> : 
+                      <ChevronRight size={16} />
+                    }
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {openMenus.member && !isCollapsed && (
+            <div className="submenu">
+              <div className="submenu-item">
+                <span className="submenu-label">공지사항</span>
+              </div>
+              <div className="submenu-item">
+                <span className="submenu-label">FAQ</span>
+              </div>
+              <div className="submenu-item">
+                <span className="submenu-label">1:1 문의</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 알림 */}
+        <div className="menu-item-container">
+          <div className="menu-item">
+            <div className="menu-item-content">
+              <Bell size={20} className="menu-icon" />
+              {!isCollapsed && <span className="menu-label">알림발송</span>}
+            </div>
+          </div>
+        </div>
+
+        {/* 통계 (서브메뉴) */}
+        <div className="menu-item-container">
+          <div 
+            className="menu-item"
+            onClick={() => toggleSubmenu('stats')}
+          >
+            <div className="menu-item-content">
+              <BarChart3 size={20} className="menu-icon" />
+              {!isCollapsed && (
+                <>
+                  <span className="menu-label">통계</span>
+                  <span className="menu-arrow">
+                    {openMenus.stats ? 
+                      <ChevronDown size={16} /> : 
+                      <ChevronRight size={16} />
+                    }
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {openMenus.stats && !isCollapsed && (
+            <div className="submenu">
+              <div className="submenu-item">
+                <span className="submenu-label">매출통계</span>
+              </div>
+              <div className="submenu-item">
+                <span className="submenu-label">상품별 통계</span>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+      </nav>
+    </div>
+  );
+};
+
+export default Sidebar;

@@ -1,36 +1,108 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GroupBuyCard from '../../components/common/GroupBuyCard';
 import './SearchResult.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function SearchResult() {
-  const [searchKeyword] = useState('텀블러');
   const [selectedType, setSelectedType] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([]);
   const [sortBy, setSortBy] = useState('인기순');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchKeyword = searchParams.get('keyword') || '';
+
+  // 데이터 상태
+  const [proposalResults, setProposalResults] = useState([]);
+  const [ongoingResults, setOngoingResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);  // 백엔트 연동 시 필요
 
   // 드롭다운 열림/닫힘 상태
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isPriceOpen, setIsPriceOpen] = useState(false);
 
-  // 제안 샘플 데이터 (4개)
-  const proposalResults = [
-    { id: 1, title: '향초', participants: '참여 120명 / 목표 80명', deadline: '남은 시간: 12시간', price: '13,900원', badge: 'HOT', image: '/searchResult/candle.jpg' },
-    { id: 2, title: '차량용 향수 디퓨저', participants: '참여 80명 / 목표 60명', deadline: '남은 시간: 25일', price: '9,900원', image: '/searchResult/carFragranceDiffuser.png' },
-    { id: 3, title: '전기포트', participants: '참여 45명 / 목표 80명', deadline: '남은 시간: 3일', price: '16,900원', image: '/searchResult/electricPot.png' },
-    { id: 4, title: 'LED 마스크', participants: '참여 35명 / 목표 50명', deadline: '남은 시간: 5일', price: '18,900원', image: '/searchResult/ledMask.png' },
-  ];
+  // 데이터 로딩 (백엔드 연동 시 이 부분만 수정)
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      setIsLoading(true);
+      try {
+        // TODO: 백엔드 연동 시 아래 주석 해제하고 실제 API 호출
+        // const queryParams = new URLSearchParams({
+        //   keyword: searchKeyword,
+        //   type: selectedType.join(','),
+        //   category: selectedCategory.join(','),
+        //   priceRange: selectedPriceRange.join(','),
+        //   sort: sortBy,
+        // });
+        // const response = await fetch(`/api/search?${queryParams}`);
+        // const data = await response.json();
+        // setProposalResults(data.proposals || []);
+        // setOngoingResults(data.ongoing || []);
 
-  // 진행 공구 중 샘플 데이터 (4개)
-  const ongoingResults = [
-    { id: 5, title: '로봇 청소기', participants: '참여 120명 / 목표 200명', deadline: '남은 시간: 2일', price: '11,900원', image: '/searchResult/robotVacuumCleaner.png' },
-    { id: 6, title: '가정용 cctv', participants: '참여 85명 / 목표 100명', deadline: '남은 시간: 8시간', price: '14,500원', badge: 'HOT', image: '/searchResult/homeCctv.png' },
-    { id: 7, title: '차량용 청소기', participants: '참여 60명 / 목표 80명', deadline: '남은 시간: 1일', price: '22,000원', image: '/searchResult/carVacuumCleaner.png' },
-    { id: 8, title: 'kpokahtChocolate', participants: '참여 95명 / 목표 120명', deadline: '남은 시간: 15시간', price: '8,900원', image: '/searchResult/kpokahtChocolate.png' },
-  ];
+        // 임시: 하드코딩된 데이터 (백엔드 연동 전까지)
+        // 실제로는 API에서 받아온 데이터로 교체됨
+        const tempProposals = [
+          { id: 1, title: '향초', participants: '참여 120명 / 목표 80명', deadline: '남은 시간: 12시간', price: '13,900원', badge: 'HOT', image: '/searchResult/candle.jpg' },
+          { id: 2, title: '차량용 향수 디퓨저', participants: '참여 80명 / 목표 60명', deadline: '남은 시간: 25일', price: '9,900원', image: '/searchResult/carFragranceDiffuser.png' },
+          { id: 3, title: '전기포트', participants: '참여 45명 / 목표 80명', deadline: '남은 시간: 3일', price: '16,900원', image: '/searchResult/electricPot.png' },
+          { id: 4, title: 'LED 마스크', participants: '참여 35명 / 목표 50명', deadline: '남은 시간: 5일', price: '18,900원', image: '/searchResult/ledMask.png' },
+        ];
+        const tempOngoing = [
+          { id: 5, title: '로봇 청소기', participants: '참여 120명 / 목표 200명', deadline: '남은 시간: 2일', price: '11,900원', image: '/searchResult/robotVacuumCleaner.png' },
+          { id: 6, title: '가정용 cctv', participants: '참여 85명 / 목표 100명', deadline: '남은 시간: 8시간', price: '14,500원', badge: 'HOT', image: '/searchResult/homeCctv.png' },
+          { id: 7, title: '차량용 청소기', participants: '참여 60명 / 목표 80명', deadline: '남은 시간: 1일', price: '22,000원', image: '/searchResult/carVacuumCleaner.png' },
+          { id: 8, title: 'kpokahtChocolate', participants: '참여 95명 / 목표 120명', deadline: '남은 시간: 15시간', price: '8,900원', image: '/searchResult/kpokahtChocolate.png' },
+        ];
+
+         // 정렬 로직 추가
+         const sortData = (data, sortType) => {
+          const sorted = [...data];
+          switch (sortType) {
+            case '인기순':
+              // 참여자 수 기준으로 정렬 (예: "참여 120명"에서 120 추출)
+              return sorted.sort((a, b) => {
+                const aCount = parseInt(a.participants.match(/\d+/)?.[0] || 0);
+                const bCount = parseInt(b.participants.match(/\d+/)?.[0] || 0);
+                return bCount - aCount; // 내림차순
+              });
+            case '최신순':
+              // ID 기준으로 정렬 (최신 = ID 큰 순서)
+              return sorted.sort((a, b) => b.id - a.id);
+            case '마감임박순':
+              // deadline에서 시간 추출하여 정렬
+              return sorted.sort((a, b) => {
+                const aTime = parseInt(a.deadline.match(/\d+/)?.[0] || 999);
+                const bTime = parseInt(b.deadline.match(/\d+/)?.[0] || 999);
+                return aTime - bTime; // 오름차순 (시간이 적을수록 임박)
+              });
+            default:
+              return sorted;
+          }
+        };
+
+        const sortedProposals = sortData(tempProposals, sortBy);
+        const sortedOngoing = sortData(tempOngoing, sortBy);
+        setProposalResults(sortedProposals);
+        setOngoingResults(sortedOngoing);
+        // 검색어에 따라 필터링 (임시 로직, 백엔드는 자체 필터링)
+        // 실제로는 백엔드에서 필터링된 결과를 받음
+      } catch (error) {
+        console.error('검색 결과 로딩 실패:', error);
+        setProposalResults([]);
+        setOngoingResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSearchResults();
+  }, [searchKeyword, selectedType, selectedCategory, selectedPriceRange, sortBy]);
+
+
+  // 동적으로 개수 계산
+  const totalCount = proposalResults.length + ongoingResults.length;
+  const proposalCount = proposalResults.length;
+  const ongoingCount = ongoingResults.length;
 
   const handleTypeChange = (type) => {
     setSelectedType(prev =>
@@ -72,7 +144,7 @@ export default function SearchResult() {
       <div className="search-result-header">
         <h1 className="search-title">검색 결과</h1>
         <p className="search-info">
-          "{searchKeyword}"에 대한 검색 결과 <span className="result-count">4개</span>
+          "{searchKeyword || '전체'}"에 대한 검색 결과 <span className="result-count">{totalCount}개</span>
         </p>
       </div>
 
@@ -242,7 +314,7 @@ export default function SearchResult() {
         <div className="results-section">
           <div className="results-header">
             <h2 className="results-section-title">
-              제안 <span className="results-count">(제안 4건)</span>
+              제안 <span className="results-count">(제안 {proposalCount}건)</span>
             </h2>
             <a 
             href="#" 
@@ -274,7 +346,7 @@ export default function SearchResult() {
         <div className="results-section">
           <div className="results-header">
             <h2 className="results-section-title">
-              진행 공구 중 <span className="results-count">(공구 4건)</span>
+              진행 공구 중 <span className="results-count">(공구 {ongoingCount}건)</span>
             </h2>
             <a 
             href="#" 
