@@ -95,8 +95,21 @@ export default function Dashboard() {
         </div>
 
         <div className="content-card">
+          <div className="card-header">
           <h2 className="card-title">결제 대기 공구상품 건</h2>
           <div className="payment-list">
+            <a
+            href="/admin/pendingPayment"
+            className="card-more-link"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/admin/pendingPayment');
+            }}
+            >
+              더 보기 &gt;
+            </a>
+            </div>
+            <div className="payment-list">
             {pendingPayments.map((item) => (
               <div key={item.id} className="payment-item">
                 <div className="payment-info">
@@ -105,6 +118,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
           </div>
         </div>
       </div>
