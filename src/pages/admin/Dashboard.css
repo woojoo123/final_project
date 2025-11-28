@@ -41,14 +41,14 @@
 }
 
 /* 통계 카드 */
-.stats-section {
+.dashboard-page .stats-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
-.stat-card {
+.dashboard-page .stat-card {
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;

@@ -3,7 +3,7 @@ import './Dashboard.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  
+
   // 더미 데이터
   const topProposals = [
     { id: 1, name: '무선 블루투스 이어폰', votes: 125 },
@@ -55,7 +55,8 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="header-date">
-          오늘 기준: 2025-11-09
+          {/* Date는 내장 객체이므로 별도 import 없이 사용 */}
+          오늘 기준: {new Date().toISOString().slice(0, 10)}
         </div>
       </div>
 
@@ -96,29 +97,32 @@ export default function Dashboard() {
 
         <div className="content-card">
           <div className="card-header">
-          <h2 className="card-title">결제 대기 공구상품 건</h2>
-          <div className="payment-list">
-            <a
-            href="/admin/pendingPayment"
-            className="card-more-link"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/admin/pendingPayment');
-            }}
-            >
-              더 보기 &gt;
-            </a>
-            </div>
-            <div className="payment-list">
-            {pendingPayments.map((item) => (
-              <div key={item.id} className="payment-item">
-                <div className="payment-info">
-                  <div className="payment-name">{item.name}</div>
-                  <div className="payment-count">결제 대기: {item.count}건</div>
-                </div>
+            <div className="d-flex flex-row justify-content-between">
+              <h2 className="card-title">주문 대기 공구상품 건</h2>
+              <div className="payment-list">
+                <a
+                  href="/admin/pendingPayment"
+                  className="card-more-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/admin/pendingPayment');
+                  }}
+                >
+                  더 보기 &gt;
+                </a>
               </div>
-            ))}
-          </div>
+            </div>
+
+            <div className="payment-list">
+              {pendingPayments.map((item) => (
+                <div key={item.id} className="payment-item">
+                  <div className="payment-info">
+                    <div className="payment-name">{item.name}</div>
+                    <div className="payment-count">결제 대기: {item.count}건</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -127,8 +131,8 @@ export default function Dashboard() {
       <div className="list-section">
         <div className="list-header">
           <h2 className="list-title">진행 중 공구 목록</h2>
-          <a 
-            href="/admin/statistics" 
+          <a
+            href="/admin/statistics"
             className="list-link"
             onClick={(e) => {
               e.preventDefault();

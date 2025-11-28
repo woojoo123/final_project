@@ -54,6 +54,7 @@ function AppContent() {
             <Route path="/cs/notice" element={<Notice />} />
             <Route path="/cs/notice/:id" element={<NoticeDetail />} />
             <Route path="/cs/inquiry/:id" element={<InquiryDetail />} />
+            <Route path="/cs/inquiryWrite" element={<div>문의 작성 페이지 (준비 중)</div>} /> {/* 임시 */}
 
             {/* 납품문의 */}
             <Route path="/partnership" element={<Partnership />} />

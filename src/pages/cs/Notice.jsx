@@ -201,7 +201,7 @@ export default function NoticePage() {
         {/* 1:1 문의 탭 */}
         {activeTab === 'inquiry' && (
           <div className="tab-content">
-            <div className="inquiry-list">
+              <div className="inquiry-list">
               <table className="inquiry-table">
                 <thead>
                   <tr>
@@ -231,6 +231,14 @@ export default function NoticePage() {
                 </tbody>
               </table>
             </div>
+            <div className="inquiry-footer-section">
+              <button
+                className="inquiry-write-button"
+                onClick={() => navigate('/cs/inquiry/write')}
+                >
+                  문의 작성
+                </button>
+              </div>
             {/* 페이지네이션 - 백엔드 연동 시 활성화 */}
             {/* <Pagination 
               currentPage={currentPage}
