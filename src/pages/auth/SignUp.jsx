@@ -13,15 +13,16 @@ export default function SignUp() {
     email: '',
     address: '',
     detailAddress: '',
-    agreeMarketing: false
+    agreeMarketing: false  // 체크박스는 boolean
   });
   
   // 아이디 중복 확인 상태
-  const [userIdChecked, setUserIdChecked] = useState(false);
-  const [userIdAvailable, setUserIdAvailable] = useState(null);
-  const [userIdMessage, setUserIdMessage] = useState('');
-  const [isCheckingUserId, setIsCheckingUserId] = useState(false);
+  const [userIdChecked, setUserIdChecked] = useState(false);  // 중복 확인 했는지
+  const [userIdAvailable, setUserIdAvailable] = useState(null);  // 사용 가능한지
+  const [userIdMessage, setUserIdMessage] = useState('');  // 메시지
+  const [isCheckingUserId, setIsCheckingUserId] = useState(false);  // 중복 확인 중인지
 
+  // 입력 필드 변경 핸들러 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({

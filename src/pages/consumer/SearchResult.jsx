@@ -4,23 +4,33 @@ import './SearchResult.css';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function SearchResult() {
+  /* 필터 상태 */
   const [selectedType, setSelectedType] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([]);
+
+  /* 정렬 상태 */
   const [sortBy, setSortBy] = useState('인기순');
+  
+  /* 네비게이션 */
   const navigate = useNavigate();
+
+  /* 검색 파라미터 */
   const [searchParams] = useSearchParams();
   const searchKeyword = searchParams.get('keyword') || '';
 
   // 데이터 상태
   const [proposalResults, setProposalResults] = useState([]);
   const [ongoingResults, setOngoingResults] = useState([]);
+
+  // 로딩 상태
   const [isLoading, setIsLoading] = useState(true);
 
   // 드롭다운 열림/닫힘 상태
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isPriceOpen, setIsPriceOpen] = useState(false);
+  
 
   // 데이터 로딩 (백엔드 연동 시 이 부분만 수정)
   useEffect(() => {
@@ -139,7 +149,7 @@ export default function SearchResult() {
           },
         ];
 
-        // 정렬 로직 수정
+        // 정렬 로직
         const sortData = (data, sortType) => {
           const sorted = [...data];
           switch (sortType) {
